@@ -5,7 +5,7 @@ import os.path
 
 def main():
     path = sys.argv[1]
-    if (!os.path.isfile(path)):
+    if (not os.path.isfile(path)):
         print("Could not find file.")
 
     # Take the argument and open the image using opencv
