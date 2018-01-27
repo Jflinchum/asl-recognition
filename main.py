@@ -13,6 +13,12 @@ def getMask(img):
         ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         return img
 
+def drawContours(img, imgCopy):
+        image, contours, hierarchy = cv2.findContours(imgCopy, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        hull = cv2.convexHull(contours[0])
+        cv2.drawContours(img, contours, -1, (0,255,0), 3)
+        cv2.drawContours(img, hull, -1, (255, 0, 0), 3)
+
 # Main function
 def main():
     cam = False
@@ -25,7 +31,10 @@ def main():
         while (video.isOpened()):
             # Constantly read the new frame of the image
             ret, frame = video.read()
-            frame = getMask(frame)
+            # Create a copy of the frame and get the mask of it
+            frameCopy = getMask(frame.copy())
+            # Draw the contours onto the original video frame
+            drawContours(frame, frameCopy)
             # Show the frame
             cv2.imshow("video", frame)
             key = cv2.waitKey(10)
@@ -38,7 +47,8 @@ def main():
             print("Could not find file.")
         # Take the argument and open the image using opencv
         img = cv2.imread(sys.argv[1])
-        img = getMask(img)
+        imgCopy = getMask(img.copy())
+        drawContours(img, imgCopy)
         cv2.imshow("image", img)
         cv2.waitKey(0)
 
