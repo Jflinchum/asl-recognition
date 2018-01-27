@@ -13,6 +13,8 @@ def getMask(img):
         ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         return img
 
+# Finds the contours of the imgCopy, presumably the mask of img, and 
+# draws the contours onto the img
 def drawContours(img, imgCopy):
         image, contours, hierarchy = cv2.findContours(imgCopy, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         hull = cv2.convexHull(contours[0])
@@ -47,7 +49,9 @@ def main():
             print("Could not find file.")
         # Take the argument and open the image using opencv
         img = cv2.imread(sys.argv[1])
+        # Get the mask of a copy of the image
         imgCopy = getMask(img.copy())
+        # Draw the contours onto the original image
         drawContours(img, imgCopy)
         cv2.imshow("image", img)
         cv2.waitKey(0)
