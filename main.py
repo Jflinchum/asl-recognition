@@ -45,8 +45,11 @@ def main():
                 return
     else:
         path = sys.argv[1]
+        # Check if the file exists
         if not os.path.isfile(path):
             print("Could not find file.")
+            return
+
         # Take the argument and open the image using opencv
         img = cv2.imread(sys.argv[1])
         # Get the mask of a copy of the image
@@ -54,6 +57,7 @@ def main():
         # Draw the contours onto the original image
         drawContours(img, imgCopy)
         cv2.imshow("image", img)
+        cv2.imshow("mask", imgCopy)
         cv2.waitKey(0)
 
 if __name__ == "__main__":
