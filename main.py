@@ -5,12 +5,13 @@ import os.path
 
 # Takes an image in order to greyscale, blur, and apply otsu's method
 def getMask(img):
+
         # Make the image grey
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # Blur the image a little bit
-        img = cv2.GaussianBlur(img,(5,5),0)
+        img = cv2.GaussianBlur(img,(35,35),0)
         # Applied Otsu's Method
-        ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        ret, img = cv2.threshold(img, 70, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         return img
 
 # Finds the contours of the imgCopy, presumably the mask of img, and 
@@ -49,12 +50,16 @@ def main():
         while (video.isOpened()):
             # Constantly read the new frame of the image
             ret, frame = video.read()
+            # Crop video
+            cv2.rectangle(frame, (500, 500), (100, 100), (0, 255, 0), 0)
+            cropFrame = frame[100:500, 100:500]
             # Create a copy of the frame and get the mask of it
-            frameCopy = getMask(frame.copy())
+            frameCopy = getMask(cropFrame.copy())
             # Draw the contours onto the original video frame
-            drawContours(frame, frameCopy)
+            drawContours(cropFrame, frameCopy)
             # Show the frame
             cv2.imshow("video", frame)
+            cv2.imshow("hand", cropFrame)
             key = cv2.waitKey(10)
             # If space bar is entered, return to end program
             if key == 32:
