@@ -4,6 +4,8 @@ import sys
 import os.path
 from handTrack import getMask, drawContours
 
+trainingFrames = 100
+
 # Main function
 def main():
     video = cv2.VideoCapture(0)
@@ -20,20 +22,27 @@ def main():
         croppedHand = image[100:500, 100:500]
 
         # Create a copy of the frame and get the mask of it
-        maskedHand = getMask(croppedHand.copy(), currentFrame)
+        maskedHand = getMask(croppedHand.copy(), currentFrame, trainingFrames)
 
         # Draw the contours onto the original video frame
         drawContours(croppedHand, maskedHand)
 
+        if currentFrame < trainingFrames:
+            cv2.putText(image, "learning", (10, 600), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
+
         # Show the frame
         cv2.imshow("video", image)
-        cv2.imshow("hand", croppedHand)
         cv2.imshow("mask", maskedHand)
 
         key = cv2.waitKey(10)
         # If space bar is entered, return to end program
-        if key == 32:
+        if key == ord(" "):
             return
+        # If r is pressed, reset the frame counter and
+        # re-train the background detection
+        elif key == ord("r"):
+            currentFrame = 0
+
 
 if __name__ == "__main__":
     main()

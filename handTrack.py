@@ -1,20 +1,16 @@
 import cv2
 import numpy as np
-import sys
-import os.path
 
 fgbg = cv2.createBackgroundSubtractorMOG2()
-trainingFrames = 100
 
 # Takes an image in order to greyscale, blur, and apply otsu's method
-def getMask(img, currentFrame):
+def getMask(img, currentFrame, trainingFrames = 100):
     # Make the image grey 
     learning = 0
     
     if currentFrame < trainingFrames:
-        learning = 1
+        learning = 1 
     
-    print(learning)
     fgmask = fgbg.apply(img, learningRate = learning)
         
     # Blur the image a little bit
