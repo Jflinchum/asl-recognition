@@ -28,7 +28,7 @@ def main():
         drawContours(croppedHand, maskedHand)
 
         if currentFrame < trainingFrames:
-            cv2.putText(image, "learning", (10, 600), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
+            cv2.putText(image, "Training...", (10, 600), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
 
         # Show the frame
         cv2.imshow("video", image)
