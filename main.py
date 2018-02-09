@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import sys
 import os.path
+from random import randint
 from handTrack import getMask, drawContours
 
 trainingFrames = 100
@@ -28,7 +29,7 @@ def main():
         drawContours(croppedHand, maskedHand)
 
         if currentFrame < trainingFrames:
-            cv2.putText(image, "Training...", (10, 600), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
+            cv2.putText(image, "Training...", (10, 600), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255, 255, 255), 2)
 
         # Show the frame
         cv2.imshow("video", image)
@@ -42,6 +43,12 @@ def main():
         # re-train the background detection
         elif key == ord("r"):
             currentFrame = 0
+        elif key == ord("c"):
+            rand = randint(0,100000)
+            filename = "hand" + str(rand) + ".jpg"
+            cv2.imwrite(filename, maskedHand)
+            print ("Saved to " + filename) 
+            
 
 
 if __name__ == "__main__":
