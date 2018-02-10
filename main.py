@@ -4,6 +4,7 @@ import sys
 import os.path
 from random import randint
 from handTrack import getMask, drawContours
+from aslRecog import aslMatch
 
 trainingFrames = 100
 
@@ -48,6 +49,8 @@ def main():
             filename = "hand" + str(rand) + ".jpg"
             cv2.imwrite(filename, maskedHand)
             print ("Saved to " + filename) 
+        elif key == ord("t"):
+            aslMatch(maskedHand)
             
 
 
