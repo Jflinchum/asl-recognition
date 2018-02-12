@@ -22,6 +22,7 @@ def getMask(img, currentFrame, trainingFrames = 100):
     fgmask = fgbg.apply(img, learningRate = learning)
         
     # Blur the image a little bit
+    # Maybe do medianBlur or bilateralFilter
     img = cv2.GaussianBlur(fgmask, (15, 15), 0)
     # Applied Otsu's Method
     ret, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
