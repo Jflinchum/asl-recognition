@@ -4,7 +4,7 @@ import sys
 import os.path
 from random import randint
 from handTrack import getMask, drawContours
-from aslRecog import aslMatch
+from aslRecog import templateMatch
 
 trainingFrames = 100
 
@@ -50,7 +50,7 @@ def main():
             cv2.imwrite(filename, maskedHand)
             print ("Saved to " + filename) 
         elif key == ord("t"):
-            aslMatch(maskedHand)
+            templateMatch(maskedHand)
             
 
 
