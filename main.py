@@ -8,6 +8,7 @@ from aslRecog import templateMatch
 
 trainingFrames = 100
 capturePath = "images/"
+templateSize = 500
 
 # Main function
 def main():
@@ -67,8 +68,8 @@ def main():
                 filenameFlip = os.path.join(capturePath, chr(key) + str(randFlip) + ".jpg")
                 
                 # Write both to filename
-                cv2.imwrite(filename, crop)
-                cv2.imwrite(filenameFlip, flipMask)
+                cv2.imwrite(filename, cv2.resize(crop, (templateSize, templateSize)))
+                cv2.imwrite(filenameFlip, cv2.resize(flipMask, (templateSize, templateSize)))
 
                 print ("Saved as " + filename) 
                 print ("Saved as " + filenameFlip) 
@@ -88,7 +89,7 @@ def main():
             elif key == ord("t"):
                 if (len(contours) > 0):
                     x, y, w, h = cv2.boundingRect(contours)
-                    crop = maskedHand[y:y+h, x:x+w]
+                    crop = cv2.resize(maskedHand[y:y+h, x:x+w], (templateSize, templateSize))
                     templateMatch(crop)
 
 

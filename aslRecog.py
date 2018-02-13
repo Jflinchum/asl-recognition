@@ -8,6 +8,7 @@ sampleImages = [image for image in os.listdir(sampleDir) if os.path.isfile(os.pa
 # Uses template matching over a sample directory to show how a binary image
 # compares to every image in the directory
 def templateMatch(binary):
+    matches = []
     # Iterate through each image in directory
     for sample in sampleImages:
         path = os.path.join(sampleDir, sample)
@@ -18,7 +19,10 @@ def templateMatch(binary):
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
         # If the match is greater than 60%, print it
-        if max_val >= .6:
-            print (sample + " | " + str(max_val))
+        if max_val > .6:
+           matches.append((path, max_val))
+    matches.sort(key=lambda x: x[1])
+    for match in matches:
+        print (match)
     print("******************************************")
     return
