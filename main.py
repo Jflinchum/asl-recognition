@@ -57,7 +57,7 @@ def main():
                 randFlip = randint(0, 100000)
 
                 # We need a mirror image for left and right handed folks
-                flipMask = cv2.flip(maskedHand)
+                flipMask = cv2.flip(maskedHand, 0)
                 filename = chr(key) + str(rand) + ".jpg"
                 filenameFlip = chr(key) + str(randFlip) + ".jpg"
 
