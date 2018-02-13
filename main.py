@@ -28,7 +28,7 @@ def main():
         maskedHand = getMask(croppedHand.copy(), currentFrame, trainingFrames)
 
         # Draw the contours onto the original video frame
-        drawContours(croppedHand, maskedHand)
+        contours = drawContours(croppedHand, maskedHand)
 
         # Text for if the background subtraction is training
         if currentFrame < trainingFrames:
@@ -56,14 +56,18 @@ def main():
                 # Generate random numbers so there are no file collisions
                 rand = randint(0, 100000)
                 randFlip = randint(0, 100000)
+                
+                # Crop the image based on contours
+                x, y, w, h = cv2.boundingRect(contours)
+                crop = maskedHand[y:y+h, x:x+w]
 
                 # We need a mirror image for left and right handed folks
-                flipMask = cv2.flip(maskedHand, 0)
+                flipMask = cv2.flip(crop, 1)
                 filename = os.path.join(capturePath, chr(key) + str(rand) + ".jpg")
                 filenameFlip = os.path.join(capturePath, chr(key) + str(randFlip) + ".jpg")
                 
                 # Write both to filename
-                cv2.imwrite(filename, maskedHand)
+                cv2.imwrite(filename, crop)
                 cv2.imwrite(filenameFlip, flipMask)
 
                 print ("Saved as " + filename) 
@@ -82,7 +86,10 @@ def main():
                 captureMode = True
             # Attempt to match the hand 
             elif key == ord("t"):
-                templateMatch(maskedHand)
+                if (len(contours) > 0):
+                    x, y, w, h = cv2.boundingRect(contours)
+                    crop = maskedHand[y:y+h, x:x+w]
+                    templateMatch(crop)
 
 
 if __name__ == "__main__":
