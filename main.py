@@ -7,6 +7,7 @@ from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 
 trainingFrames = 100
+capturePath = "images/"
 
 # Main function
 def main():
@@ -58,9 +59,9 @@ def main():
 
                 # We need a mirror image for left and right handed folks
                 flipMask = cv2.flip(maskedHand, 0)
-                filename = chr(key) + str(rand) + ".jpg"
-                filenameFlip = chr(key) + str(randFlip) + ".jpg"
-
+                filename = os.path.join(capturePath, chr(key) + str(rand) + ".jpg")
+                filenameFlip = os.path.join(capturePath, chr(key) + str(randFlip) + ".jpg")
+                
                 # Write both to filename
                 cv2.imwrite(filename, maskedHand)
                 cv2.imwrite(filenameFlip, flipMask)
