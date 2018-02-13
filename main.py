@@ -21,7 +21,6 @@ def main():
         currentFrame = currentFrame + 1
 
         # Crop video
-        cv2.rectangle(image, (500, 500), (100, 100), (0, 255, 0), 0)
         croppedHand = image[100:500, 100:500]
 
         # Create a copy of the frame and get the mask of it
@@ -35,6 +34,8 @@ def main():
 
         if captureMode:
             cv2.putText(image, "Capture Mode", (10, 50), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (70, 0, 255), 2)
+
+        cv2.rectangle(image, (500, 500), (100, 100), (0, 255, 0), 0)
 
         # Show the frame
         cv2.imshow("video", image)
