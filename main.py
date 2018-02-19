@@ -37,7 +37,7 @@ def main():
 
         # Text for if the background subtraction is training
         if currentFrame < trainingFrames:
-            cv2.putText(image, "Training...", (10, 600), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255, 255, 255), 2)
+            cv2.putText(image, "Training...", (10, 50), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255, 255, 255), 2)
 
         # Text for capture mode
         if captureMode:
