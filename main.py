@@ -5,6 +5,7 @@ import os.path
 from random import randint
 from handTrack import getMask, drawContours
 from aslRecog import templateMatch
+from util import getCoord
 
 trainingFrames = 100
 capturePath = "images/"
@@ -19,11 +20,15 @@ def main():
     while (video.isOpened()):
         # Constantly read the new frame of the image
         ret, image = video.read()
+        
+        width, height, channel = image.shape
 
         currentFrame = currentFrame + 1
 
         # Crop video
-        croppedHand = image[100:500, 100:500]
+        topLeftX, topLeftY = getCoord(14, 8, (width, height))
+        botRightX, botRightY = getCoord(70, 39, (width, height))
+        croppedHand = image[topLeftX:botRightX, topLeftY:botRightY]
 
         # Create a copy of the frame and get the mask of it
         maskedHand = getMask(croppedHand.copy(), currentFrame, trainingFrames)
@@ -33,14 +38,14 @@ def main():
 
         # Text for if the background subtraction is training
         if currentFrame < trainingFrames:
-            cv2.putText(image, "Training...", (10, 600), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255, 255, 255), 2)
+            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255, 255, 255), 2)
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", (10, 50), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (70, 0, 255), 2)
+            cv2.putText(image, "Capture Mode", getCoord(75, 7,(width, height)), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (70, 0, 255), 2)
 
         # Box for where the hand is cropped
-        cv2.rectangle(image, (500, 500), (100, 100), (0, 255, 0), 0)
+        cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
 
         # Show the frame
         cv2.imshow("video", image)
