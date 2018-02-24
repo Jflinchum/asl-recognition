@@ -33,7 +33,7 @@ def getMask(img, currentFrame, trainingFrames = 100):
 # draws the contours onto the img
 def drawContours(img, imgCopy):
     # Find the contours in the image
-    image, contours, hierarchy = cv2.findContours(imgCopy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)    
+    image, contours, hierarchy = cv2.findContours(imgCopy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     
     maxContour = contours
     maxArea = 0
@@ -47,8 +47,9 @@ def drawContours(img, imgCopy):
 
         # Find bounding box of contours
         x, y, w, h = cv2.boundingRect(maxContour)
-
+        hull = cv2.convexHull(maxContour)
         # Drawing the box and contours
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255), 3)
         cv2.drawContours(img, [maxContour], 0, (255, 0, 0), 3)
+        cv2.drawContours(img, [hull], -1, (255, 0, 0), 3)
     return maxContour
