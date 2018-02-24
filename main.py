@@ -11,28 +11,29 @@ from gradient import getGradient
 trainingFrames = 100
 capturePath = "images/"
 templateSize = 500
+
 font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-matches = []
+white = (255, 255, 255)
+red = (70, 0, 255)
 
 # Main function
 def main():
-    global matches
-    matchTimer = 50
-    maxMatchTimer = 50
-
     video = cv2.VideoCapture(0)
     currentFrame = 0
     captureMode = False
 
+    # Variables for matching the templates
+    matches = []
+    matchTimer = 50
+    maxMatchTimer = 50
+
     while (video.isOpened()):
         # Constantly read the new frame of the image
         ret, image = video.read()
-        
         width, height, channel = image.shape
-
         currentFrame = currentFrame + 1
 
-        # Crop video
+        # Crop video hand area
         topLeftX, topLeftY = getCoord(14, 8, (width, height))
         botRightX, botRightY = getCoord(70, 39, (width, height))
         croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
@@ -48,11 +49,11 @@ def main():
 
         # Text for if the background subtraction is training
         if currentFrame < trainingFrames:
-            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), font, 2, (255, 255, 255), 2)
+            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), font, 2, white, 2)
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), font, 2, (70, 0, 255), 2)
+            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), font, 2, red, 2)
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
@@ -61,7 +62,7 @@ def main():
             # Print out matches on image
             for i in range(0, len(matches)):
                 imageName, probability = matches[i]
-                cv2.putText(image, imageName.replace(capturePath, "")[0] + "--" + str(probability), getCoord(75, 7 + i*2, (width, height)), font, 1, (255, 255, 255), 1)
+                cv2.putText(image, imageName.replace(capturePath, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), font, 1, white, 1)
         
         # Show the frame
         cv2.imshow("video", image)
@@ -77,25 +78,8 @@ def main():
                 captureMode = False
             # If the key is lowercase alphabet letter
             elif key >= 97 and key <= 122:
-                # Generate random numbers so there are no file collisions
-                rand = randint(0, 100000)
-                randFlip = randint(0, 100000)
-                
-                # Crop the image based on contours
-                x, y, w, h = cv2.boundingRect(contours)
-                crop = maskedHand[y:y+h, x:x+w]
+                captureToFile(key, contours, maskedHand)
 
-                # We need a mirror image for left and right handed folks
-                flipMask = cv2.flip(crop, 1)
-                filename = os.path.join(capturePath, chr(key) + str(rand) + ".jpg")
-                filenameFlip = os.path.join(capturePath, chr(key) + str(randFlip) + ".jpg")
-                
-                # Write both to filename
-                cv2.imwrite(filename, cv2.resize(crop, (templateSize, templateSize)))
-                cv2.imwrite(filenameFlip, cv2.resize(flipMask, (templateSize, templateSize)))
-
-                print ("Saved as " + filename) 
-                print ("Saved as " + filenameFlip) 
         else:
             # If space bar is entered, return to end program
             if key == ord(" "):
@@ -116,7 +100,33 @@ def main():
                     matches = templateMatch(crop)
                     matchTimer = 0
 
+"""
+captureToFile - Takes the input key, crops the hand, flips the image for opposite
+hand capturing, and saves it to a file in the template path
+key - key to name the image after
+contour - the contour of the image
+maskedHand - the mask of the hand to save
+"""
+def captureToFile(key, contours, maskedHand):
+        # Generate random numbers so there are no file collisions
+        rand = randint(0, 100000)
+        randFlip = randint(0, 100000)
+        
+        # Crop the image based on contours
+        x, y, w, h = cv2.boundingRect(contours)
+        crop = maskedHand[y:y+h, x:x+w]
 
+        # We need a mirror image for left and right handed folks
+        flipMask = cv2.flip(crop, 1)
+        filename = os.path.join(capturePath, chr(key) + str(rand) + ".jpg")
+        filenameFlip = os.path.join(capturePath, chr(key) + str(randFlip) + ".jpg")
+        
+        # Write both to filename
+        cv2.imwrite(filename, cv2.resize(crop, (templateSize, templateSize)))
+        cv2.imwrite(filenameFlip, cv2.resize(flipMask, (templateSize, templateSize)))
+
+        print ("Saved as " + filename) 
+        print ("Saved as " + filenameFlip) 
 
 if __name__ == "__main__":
     main()
