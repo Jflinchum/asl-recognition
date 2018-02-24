@@ -29,7 +29,7 @@ def main():
         # Crop video
         topLeftX, topLeftY = getCoord(14, 8, (width, height))
         botRightX, botRightY = getCoord(70, 39, (width, height))
-        croppedHand = image[topLeftX:botRightX, topLeftY:botRightY]
+        croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
 
         # Create a copy of the frame and get the mask of it
         maskedHand = getMask(croppedHand.copy(), currentFrame, trainingFrames)
@@ -46,7 +46,7 @@ def main():
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", getCoord(75, 7,(width, height)), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (70, 0, 255), 2)
+            cv2.putText(image, "Capture Mode", getCoord(7, 75,(width, height)), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (70, 0, 255), 2)
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
