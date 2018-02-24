@@ -25,4 +25,4 @@ def templateMatch(binary):
     for match in matches:
         print (match)
     print("******************************************")
-    return
+    return matches

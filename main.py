@@ -11,9 +11,15 @@ from gradient import getGradient
 trainingFrames = 100
 capturePath = "images/"
 templateSize = 500
+font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+matches = []
 
 # Main function
 def main():
+    global matches
+    matchTimer = 50
+    maxMatchTimer = 50
+
     video = cv2.VideoCapture(0)
     currentFrame = 0
     captureMode = False
@@ -42,15 +48,21 @@ def main():
 
         # Text for if the background subtraction is training
         if currentFrame < trainingFrames:
-            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255, 255, 255), 2)
+            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), font, 2, (255, 255, 255), 2)
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", getCoord(7, 75,(width, height)), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (70, 0, 255), 2)
+            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), font, 2, (70, 0, 255), 2)
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
-
+        if matchTimer < maxMatchTimer:
+            matchTimer = matchTimer + 1
+            # Print out matches on image
+            for i in range(0, len(matches)):
+                imageName, probability = matches[i]
+                cv2.putText(image, imageName.replace(capturePath, "")[0] + "--" + str(probability), getCoord(75, 7 + i*2, (width, height)), font, 1, (255, 255, 255), 1)
+        
         # Show the frame
         cv2.imshow("video", image)
 
@@ -101,7 +113,9 @@ def main():
                 if (len(contours) > 0):
                     x, y, w, h = cv2.boundingRect(contours)
                     crop = cv2.resize(maskedHand[y:y+h, x:x+w], (templateSize, templateSize))
-                    templateMatch(crop)
+                    matches = templateMatch(crop)
+                    matchTimer = 0
+
 
 
 if __name__ == "__main__":
