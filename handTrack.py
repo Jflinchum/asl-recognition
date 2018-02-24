@@ -47,9 +47,21 @@ def drawContours(img, imgCopy):
 
         # Find bounding box of contours
         x, y, w, h = cv2.boundingRect(maxContour)
-        hull = cv2.convexHull(maxContour)
+
+        # Find convex hull and defects
+        hull = cv2.convexHull(maxContour, returnPoints = False)
+        defects = cv2.convexityDefects(maxContour, hull)
+
+        if (defects is not None):
+            for i in range(defects.shape[0]):
+                s, e, f, d = defects[i,0]
+                start = tuple(maxContour[s][0])
+                end = tuple(maxContour[e][0])
+                far = tuple(maxContour[f][0])
+                cv2.line(img, start, end, [0,255,0], 2)
+                cv2.circle(img, far, 8, [150, 0, 150], -1)
+
         # Drawing the box and contours
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255), 3)
         cv2.drawContours(img, [maxContour], 0, (255, 0, 0), 3)
-        cv2.drawContours(img, [hull], -1, (255, 0, 0), 3)
     return maxContour
