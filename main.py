@@ -90,10 +90,9 @@ def main():
                 captureToFile(key, contours, maskedHand)
 
         else:
-            # If space bar is entered, return to end program
+            # If space bar is entered, stop video
             if key == ord(" "):
                 video.release()
-                return
 
             # If r is pressed, reset the frame counter and
             # re-train the background detection
