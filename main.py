@@ -10,13 +10,15 @@ from aslRecog import templateMatch
 from util import getCoord
 from edge_detection import get_edges
 
-trainingFrames = 100
-capturePath = "images/"
-templateSize = 500
+TRAINING_FRAMES = 100
 
-font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-white = (255, 255, 255)
-red = (70, 0, 255)
+TEMPLATE_PATH = "images/"
+TEMPLATE_SIZE = 500
+
+TEXT_FONT = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+
+C_WHITE = (255, 255, 255)
+C_RED = (70, 0, 255)
 
 # Main function
 def main():
@@ -41,7 +43,7 @@ def main():
         croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
 
         # Create a copy of the frame and get the mask of it
-        maskedHand = getMask(croppedHand.copy(), currentFrame, trainingFrames)
+        maskedHand = getMask(croppedHand.copy(), currentFrame, TRAINING_FRAMES)
 
         # Edge detection for the hand
         edge_map = get_edges(croppedHand, maskedHand)
@@ -50,12 +52,12 @@ def main():
         contours = drawContours(croppedHand, maskedHand)
 
         # Text for if the background subtraction is training
-        if currentFrame < trainingFrames:
-            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), font, 2, white, 2)
+        if currentFrame < TRAINING_FRAMES:
+            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), TEXT_FONT, 2, C_WHITE, 2)
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), font, 2, red, 2)
+            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), TEXT_FONT, 2, C_RED, 2)
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
@@ -64,7 +66,7 @@ def main():
             # Print out matches on image
             for i in range(0, len(matches)):
                 imageName, probability = matches[i]
-                cv2.putText(image, imageName.replace(capturePath, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), font, 1, white, 1)
+                cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), TEXT_FONT, 1, C_WHITE, 1)
         
         # Show the frame
         cv2.imshow("video", image)
@@ -101,7 +103,7 @@ def main():
             elif key == ord("t"):
                 if (len(contours) > 0):
                     x, y, w, h = cv2.boundingRect(contours)
-                    crop = cv2.resize(maskedHand[y:y+h, x:x+w], (templateSize, templateSize))
+                    crop = cv2.resize(maskedHand[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
                     matches = templateMatch(crop)
                     matchTimer = 0
 
@@ -123,12 +125,12 @@ def captureToFile(key, contours, maskedHand):
 
         # We need a mirror image for left and right handed folks
         flipMask = cv2.flip(crop, 1)
-        filename = os.path.join(capturePath, chr(key) + str(rand) + ".jpg")
-        filenameFlip = os.path.join(capturePath, chr(key) + str(randFlip) + ".jpg")
+        filename = os.path.join(TEMPLATE_PATH, chr(key) + str(rand) + ".jpg")
+        filenameFlip = os.path.join(TEMPLATE_PATH, chr(key) + str(randFlip) + ".jpg")
         
         # Write both to filename
-        cv2.imwrite(filename, cv2.resize(crop, (templateSize, templateSize)))
-        cv2.imwrite(filenameFlip, cv2.resize(flipMask, (templateSize, templateSize)))
+        cv2.imwrite(filename, cv2.resize(crop, (TEMPLATE_SIZE, TEMPLATE_SIZE)))
+        cv2.imwrite(filenameFlip, cv2.resize(flipMask, (TEMPLATE_SIZE, TEMPLATE_SIZE)))
 
         print ("Saved as " + filename) 
         print ("Saved as " + filenameFlip) 
