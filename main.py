@@ -40,6 +40,7 @@ def main():
     while (video.isOpened()):
         # Constantly read the new frame of the image
         ret, image = video.read()
+        image = cv2.flip(image, 1)
         currentFrame = currentFrame + 1
 
         # Crop video hand area
