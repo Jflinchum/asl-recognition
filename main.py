@@ -26,6 +26,12 @@ def main():
     currentFrame = 0
     captureMode = False
 
+    # Get image parameters
+    r, i = video.read()
+    width, height, channel = i.shape
+    topLeftX, topLeftY = getCoord(14, 8, (width, height))
+    botRightX, botRightY = getCoord(70, 39, (width, height))
+
     # Variables for matching the templates
     matches = []
     matchTimer = 50
@@ -34,12 +40,9 @@ def main():
     while (video.isOpened()):
         # Constantly read the new frame of the image
         ret, image = video.read()
-        width, height, channel = image.shape
         currentFrame = currentFrame + 1
 
         # Crop video hand area
-        topLeftX, topLeftY = getCoord(14, 8, (width, height))
-        botRightX, botRightY = getCoord(70, 39, (width, height))
         croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
 
         # Create a copy of the frame and get the mask of it
