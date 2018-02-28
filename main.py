@@ -8,7 +8,7 @@ from random import randint
 from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 from util import getCoord
-from edge_detection import get_edges
+from edge_detection import get_edges, cut_edges_from_binary
 
 TRAINING_FRAMES = 100
 
@@ -77,6 +77,8 @@ def main():
         cv2.imshow("edges", edge_map)
 
         cv2.imshow("hand mask", maskedHand)
+
+        cv2.imshow("detail", cut_edges_from_binary(maskedHand, edge_map))
 
         # Wait for a key press
         key = cv2.waitKey(10)
