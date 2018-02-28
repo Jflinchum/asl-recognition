@@ -85,6 +85,7 @@ def main():
         else:
             # If space bar is entered, return to end program
             if key == ord(" "):
+                video.release()
                 return
 
             # If r is pressed, reset the frame counter and
@@ -132,3 +133,4 @@ def captureToFile(key, contours, maskedHand):
 
 if __name__ == "__main__":
     main()
+    cv2.destroyAllWindows()
