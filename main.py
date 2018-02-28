@@ -8,7 +8,7 @@ from random import randint
 from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 from util import getCoord
-from gradient import getGradient
+from edge_detection import get_edges
 
 trainingFrames = 100
 capturePath = "images/"
@@ -44,7 +44,7 @@ def main():
         maskedHand = getMask(croppedHand.copy(), currentFrame, trainingFrames)
 
         # Edge detection for the hand
-        gradient = getGradient(croppedHand, maskedHand)
+        edge_map = get_edges(croppedHand, maskedHand)
 
         # Draw the contours onto the original video frame
         contours = drawContours(croppedHand, maskedHand)
@@ -69,7 +69,9 @@ def main():
         # Show the frame
         cv2.imshow("video", image)
 
-        cv2.imshow("gradient", gradient)
+        cv2.imshow("edges", edge_map)
+
+        cv2.imshow("hand mask", maskedHand)
 
         # Wait for a key press
         key = cv2.waitKey(10)
