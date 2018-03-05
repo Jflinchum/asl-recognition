@@ -7,7 +7,7 @@ import os.path
 from random import randint
 from handTrack import getMask, drawContours
 from aslRecog import templateMatch
-from util import getCoord
+from util import getCoord, getFontSize
 from edge_detection import get_edges, cut_edges_from_binary
 
 TRAINING_FRAMES = 100
@@ -57,11 +57,11 @@ def main():
 
         # Text for if the background subtraction is training
         if currentFrame < TRAINING_FRAMES:
-            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), TEXT_FONT, 2, C_WHITE, 2)
+            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_WHITE, 2)
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), TEXT_FONT, 2, C_RED, 2)
+            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_RED, 2)
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
@@ -70,7 +70,7 @@ def main():
             # Print out matches on image
             for i in range(0, len(matches)):
                 imageName, probability = matches[i]
-                cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), TEXT_FONT, 1, C_WHITE, 1)
+                cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
         
         # Show the frame
         cv2.imshow("video", image)
