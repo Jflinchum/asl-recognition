@@ -74,12 +74,9 @@ def main():
         
         # Show the frame
         cv2.imshow("video", image)
-
-        cv2.imshow("edges", edge_map)
-
-        cv2.imshow("hand mask", maskedHand)
-
-        cv2.imshow("detail", cut_edges_from_binary(maskedHand, edge_map))
+        #cv2.imshow("edges", edge_map)
+        #cv2.imshow("hand mask", maskedHand)
+        #cv2.imshow("detail", cut_edges_from_binary(maskedHand, edge_map))
 
         # Wait for a key press
         key = cv2.waitKey(10)
