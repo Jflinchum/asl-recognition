@@ -51,16 +51,37 @@ def drawContours(img, imgCopy):
         # Find convex hull and defects
         hull = cv2.convexHull(maxContour, returnPoints = False)
         defects = cv2.convexityDefects(maxContour, hull)
-
+        # Initialize variables
+        palmCenter = (0, 0)
+        highestValue = 0
+        farPoints = 0
         if (defects is not None):
             for i in range(defects.shape[0]):
                 s, e, f, d = defects[i,0]
                 start = tuple(maxContour[s][0])
                 end = tuple(maxContour[e][0])
                 far = tuple(maxContour[f][0])
+                # Calculate the center of the palm
+                palmCenterX = palmCenter[0] + far[0]
+                palmCenterY = palmCenter[1] + far[1]
+                farPoints += 1
+                palmCenter = palmCenterX, palmCenterY
+                # Ignore noise
+                if (h * .01) > d/256.0:
+                    continue
+                if far[1] > highestValue:
+                    highestValue = far[1]
                 cv2.line(img, start, end, [0,255,0], 2)
                 cv2.circle(img, far, 8, [150, 0, 150], -1)
 
+            # Averaging the center of the palm
+            if (farPoints != 0):
+                palmCenterX = palmCenter[0]/(farPoints)
+                palmCenterY = palmCenter[1]/(farPoints)
+                palmCenter = palmCenterX, (palmCenterY+highestValue)/2
+                cv2.circle(img, palmCenter, 8, [255,0,0], -1)
+                if highestValue < y+h:
+                    h = highestValue - y
         # Drawing the box and contours
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255), 3)
         cv2.drawContours(img, [maxContour], 0, (255, 0, 0), 3)
