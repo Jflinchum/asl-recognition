@@ -12,7 +12,6 @@ def isTrained():
 def getMask(img, currentFrame, trainingFrames = 100):
     global trained
     global fgbg
-    # Make the image grey 
     learning = 0
     
     if currentFrame < trainingFrames:
@@ -29,7 +28,10 @@ def getMask(img, currentFrame, trainingFrames = 100):
     # Maybe do medianBlur or bilateralFilter
     img = cv2.GaussianBlur(fgmask, (15, 15), 0)
     # Applied Otsu's Method
-    ret, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    __, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    cv2.dilate(img, np.ones((5,5), np.uint8), iterations=1)
+    cv2.erode(img, np.ones((5,5), np.uint8), iterations=1)
+    cv2.imshow("mask", img)
     return img
 
 
