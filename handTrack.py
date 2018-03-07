@@ -4,6 +4,10 @@ import numpy as np
 fgbg = cv2.createBackgroundSubtractorMOG2()
 trained = False
 
+def isTrained():
+    global trained
+    return trained
+
 # Takes an image in order to greyscale, blur, and apply otsu's method
 def getMask(img, currentFrame, trainingFrames = 100):
     global trained

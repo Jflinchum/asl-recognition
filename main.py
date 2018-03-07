@@ -9,6 +9,7 @@ from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 from util import getCoord, getFontSize
 from edge_detection import get_edges, cut_edges_from_binary
+from movement import get_movement_ratio
 
 TRAINING_FRAMES = 100
 
@@ -16,6 +17,7 @@ TEMPLATE_PATH = "images/"
 TEMPLATE_SIZE = 500
 
 TEXT_FONT = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
 
 C_WHITE = (255, 255, 255)
 C_RED = (70, 0, 255)
@@ -49,6 +51,8 @@ def main():
         # Create a copy of the frame and get the mask of it
         maskedHand = getMask(croppedHand.copy(), currentFrame, TRAINING_FRAMES)
 
+        # are we moving?
+        move_ratio = get_movement_ratio(croppedHand)
 
         # Draw the contours onto the original video frame
         contours = drawContours(croppedHand, maskedHand)
@@ -69,6 +73,13 @@ def main():
             for i in range(0, len(matches)):
                 imageName, probability = matches[i]
                 cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+
+        if move_ratio is not None: #and move_ratio < 1.0:
+            cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 70, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+            if move_ratio < 0.01:
+                cv2.putText(image, "STILL", getCoord(7, 74, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
+            else:
+                cv2.putText(image, "MOVE", getCoord(7, 74, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
         
         # Show the frame
         cv2.imshow("video", image)
