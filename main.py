@@ -49,8 +49,6 @@ def main():
         # Create a copy of the frame and get the mask of it
         maskedHand = getMask(croppedHand.copy(), currentFrame, TRAINING_FRAMES)
 
-        # Edge detection for the hand
-        edge_map = get_edges(croppedHand, maskedHand)
 
         # Draw the contours onto the original video frame
         contours = drawContours(croppedHand, maskedHand)
@@ -74,9 +72,6 @@ def main():
         
         # Show the frame
         cv2.imshow("video", image)
-        #cv2.imshow("edges", edge_map)
-        #cv2.imshow("hand mask", maskedHand)
-        #cv2.imshow("detail", cut_edges_from_binary(maskedHand, edge_map))
 
         # Wait for a key press
         key = cv2.waitKey(10)
