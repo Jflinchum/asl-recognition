@@ -8,7 +8,6 @@ from random import randint
 from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 from util import getCoord, getFontSize
-from edge_detection import get_edges, cut_edges_from_binary
 from movement import get_movement_ratio
 
 TRAINING_FRAMES = 100
