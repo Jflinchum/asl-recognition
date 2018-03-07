@@ -30,9 +30,9 @@ def main():
 
     # Get image parameters
     r, i = video.read()
-    width, height, channel = i.shape
-    topLeftX, topLeftY = getCoord(14, 8, (width, height))
-    botRightX, botRightY = getCoord(70, 39, (width, height))
+    height, width, channel = i.shape
+    topLeftX, topLeftY = getCoord(8, 14, (width, height))
+    botRightX, botRightY = getCoord(39, 70, (width, height))
 
     # Variables for matching the templates
     matches = []
@@ -63,7 +63,7 @@ def main():
 
         # Text for capture mode
         if captureMode:
-            cv2.putText(image, "Capture Mode", getCoord(7, 50, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_RED, 2)
+            cv2.putText(image, "Capture Mode", getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_RED, 2)
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
@@ -72,14 +72,14 @@ def main():
             # Print out matches on image
             for i in range(0, len(matches)):
                 imageName, probability = matches[i]
-                cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(75, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+                cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(50, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
 
         if move_ratio is not None: #and move_ratio < 1.0:
-            cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 70, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+            cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
             if move_ratio < 0.01:
-                cv2.putText(image, "STILL", getCoord(7, 74, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
+                cv2.putText(image, "STILL", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
             else:
-                cv2.putText(image, "MOVE", getCoord(7, 74, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
+                cv2.putText(image, "MOVE", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
         
         # Show the frame
         cv2.imshow("video", image)
