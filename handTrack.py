@@ -76,9 +76,9 @@ def drawContours(img, imgCopy):
 
             # Averaging the center of the palm
             if (farPoints != 0):
-                palmCenterX = palmCenter[0]/(farPoints)
-                palmCenterY = palmCenter[1]/(farPoints)
-                palmCenter = palmCenterX, (palmCenterY+highestValue)/2
+                palmCenterX = int(palmCenter[0]/(farPoints))
+                palmCenterY = int(palmCenter[1]/(farPoints))
+                palmCenter = palmCenterX, int((palmCenterY+highestValue)/2)
                 cv2.circle(img, palmCenter, 8, [255,0,0], -1)
                 if highestValue < y+h:
                     h = highestValue - y
