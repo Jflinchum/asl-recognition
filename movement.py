@@ -18,7 +18,7 @@ def get_movement_ratio(frame):
         diff = cv2.absdiff(prev_frame, frame_c)
         diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
         __, diff = cv2.threshold(diff, MOVEMENT_BINARY_LOWER, MOVEMENT_BINARY_UPPER, cv2.THRESH_BINARY)
-        change = (cv2.countNonZero(diff) / float(np.prod(diff.shape)))
+        change = (cv2.countNonZero(diff) / float(diff.size))
 
     prev_frame = frame_c
     return change
