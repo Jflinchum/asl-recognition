@@ -15,7 +15,7 @@ TRAINING_FRAMES = 100
 TEMPLATE_PATH = "images/"
 TEMPLATE_SIZE = 500
 
-TEXT_FONT = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
 TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
 
 C_WHITE = (255, 255, 255)
@@ -79,7 +79,7 @@ def main():
                 cv2.putText(image, "STILL", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
             else:
                 cv2.putText(image, "MOVE", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
-        
+ 
         # Show the frame
         cv2.imshow("video", image)
 
