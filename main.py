@@ -26,6 +26,7 @@ def main():
     video = cv2.VideoCapture(0)
     currentFrame = 0
     captureMode = False
+    translateMode = False
 
     # Get image parameters
     r, i = video.read()
@@ -68,6 +69,11 @@ def main():
         if captureMode:
             cv2.putText(image, "Capture Mode", getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_RED, 2)
 
+        # Text for translate mode
+        if translateMode:
+            cv2.putText(image, "Translate Mode", getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_RED, 2)
+
+
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
         if matchTimer < maxMatchTimer:
@@ -89,7 +95,7 @@ def main():
                 cv2.putText(image, "MOVE", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
 
         # Attempt to match the hand if the hand was moving and it is now not moving
-        if moving == False and previousMoving == True:
+        if moving == False and previousMoving == True and translateMode:
             if (len(contours) > 0):
                 x, y, w, h = cv2.boundingRect(contours)
                 crop = cv2.resize(maskedHand[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
@@ -122,6 +128,10 @@ def main():
             # Turn on capture mode on c key press
             elif key == ord("c"):
                 captureMode = True
+            elif key == ord("t") and not translateMode:
+                translateMode = True
+            elif key == ord("t") and translateMode:
+                translateMode = False
 
 """
 captureToFile - Takes the input key, crops the hand, flips the image for opposite
