@@ -15,7 +15,9 @@ TRAINING_FRAMES = 100
 
 TEMPLATE_PATH_MASK = "images/mask"
 TEMPLATE_PATH_EDGE = "images/edge"
-TEMPLATE_SIZE = 500
+TEMPLATE_SIZE_TALL = (400, 600)
+TEMPLATE_SIZE_SQUARE = (500, 500)
+TEMPLATE_SIZE_WIDE = (600, 400)
 
 TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
 TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
@@ -87,8 +89,9 @@ def main():
             matchTimer = matchTimer + 1
             # Print out matches on image
             i = 0
-            for imageName in list(matches.keys()):
-                probability = matches[imageName]
+            for match in sorted(matches.items(), key=lambda x: x[1]):
+                imageName = match[0]
+                probability = match[1]
                 cv2.putText(image, imageName + "--" + str(probability), getCoord(50, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
                 i += 1
 
@@ -108,8 +111,13 @@ def main():
             if (len(contours) > 0):
                 matches = {}
                 x, y, w, h = cv2.boundingRect(contours)
-                edge_crop = cv2.resize(edge_map[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
-                mask_crop = cv2.resize(maskedHand[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
+                TEMPLATE_SIZE = TEMPLATE_SIZE_SQUARE
+                if w > h * 1.25:
+                    TEMPLATE_SIZE = TEMPLATE_SIZE_WIDE
+                elif h > w * 1.25:
+                    TEMPLATE_SIZE = TEMPLATE_SIZE_TALL
+                edge_crop = cv2.resize(edge_map[y:y+h, x:x+w], TEMPLATE_SIZE)
+                mask_crop = cv2.resize(maskedHand[y:y+h, x:x+w], TEMPLATE_SIZE)
                 matches_mask = templateMatch(mask_crop, .6, TEMPLATE_PATH_MASK)
                 matches_edge = templateMatch(edge_crop, .2, TEMPLATE_PATH_EDGE)
                 for m in matches_mask:
@@ -174,8 +182,14 @@ def captureToFile(key, contours, maskedHand, directory):
         filenameFlip = os.path.join(directory, chr(key) + str(randFlip) + ".jpg")
         
         # Write both to filename
-        cv2.imwrite(filename, cv2.resize(crop, (TEMPLATE_SIZE, TEMPLATE_SIZE)))
-        cv2.imwrite(filenameFlip, cv2.resize(flipMask, (TEMPLATE_SIZE, TEMPLATE_SIZE)))
+        TEMPLATE_SIZE = TEMPLATE_SIZE_SQUARE
+        if w > h * 1.25:
+            TEMPLATE_SIZE = TEMPLATE_SIZE_WIDE
+        elif h > w * 1.25:
+            TEMPLATE_SIZE = TEMPLATE_SIZE_TALL
+        # DO STUFF HERE
+        cv2.imwrite(filename, cv2.resize(crop, TEMPLATE_SIZE))
+        cv2.imwrite(filenameFlip, cv2.resize(flipMask, TEMPLATE_SIZE))
 
         print ("Saved as " + filename) 
         print ("Saved as " + filenameFlip) 
