@@ -13,7 +13,8 @@ from edge_detection import get_edges
 
 TRAINING_FRAMES = 100
 
-TEMPLATE_PATH = "images/"
+TEMPLATE_PATH_MASK = "images/mask"
+TEMPLATE_PATH_EDGE = "images/edge"
 TEMPLATE_SIZE = 500
 
 TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
@@ -36,7 +37,7 @@ def main():
     botRightX, botRightY = getCoord(39, 70, (width, height))
 
     # Variables for matching the templates
-    matches = []
+    matches = {}
     matchTimer = 50
     maxMatchTimer = 50
 
@@ -85,9 +86,11 @@ def main():
         if matchTimer < maxMatchTimer:
             matchTimer = matchTimer + 1
             # Print out matches on image
-            for i in range(0, len(matches)):
-                imageName, probability = matches[i]
-                cv2.putText(image, imageName.replace(TEMPLATE_PATH, "")[0] + "--" + str(probability), getCoord(50, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+            i = 0
+            for imageName in list(matches.keys()):
+                probability = matches[imageName]
+                cv2.putText(image, imageName + "--" + str(probability), getCoord(50, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+                i += 1
 
         if move_ratio is not None: #and move_ratio < 1.0:
             cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
@@ -103,14 +106,22 @@ def main():
         # Attempt to match the hand if the hand was moving and it is now not moving
         if moving == False and previousMoving == True and translateMode:
             if (len(contours) > 0):
+                matches = {}
                 x, y, w, h = cv2.boundingRect(contours)
                 edge_crop = cv2.resize(edge_map[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
-                matches = templateMatch(edge_crop, .2, TEMPLATE_PATH)
+                mask_crop = cv2.resize(maskedHand[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
+                matches_mask = templateMatch(mask_crop, .6, TEMPLATE_PATH_MASK)
+                matches_edge = templateMatch(edge_crop, .2, TEMPLATE_PATH_EDGE)
+                for m in matches_mask:
+                    for e in matches_edge:
+                        if m[0] == e[0] and m[0] in matches:
+                            matches[m[0]] += (m[1] + e[1])
+                        else:
+                            matches[m[0]] = (m[1] + e[1])
                 matchTimer = 0
  
         # Show the frame
         cv2.imshow("video", image)
-        cv2.imshow("canny", edge_map)
 
         # Wait for a key press
         key = cv2.waitKey(10)
@@ -121,7 +132,8 @@ def main():
                 captureMode = False
             # If the key is lowercase alphabet letter
             elif key >= 97 and key <= 122:
-                captureToFile(key, contours, edge_map, TEMPLATE_PATH)
+                captureToFile(key, contours, maskedHand, TEMPLATE_PATH_MASK)
+                captureToFile(key, contours, edge_map, TEMPLATE_PATH_EDGE)
 
         else:
             # If space bar is entered, stop video

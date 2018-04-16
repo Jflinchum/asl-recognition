@@ -18,7 +18,8 @@ def templateMatch(binary, matchFilter, sampleDir):
 
         # If the match is greater than the specified ratio, print it
         if max_val > matchFilter:
-           matches.append((path, max_val))
+            finalPath = path.replace(sampleDir, "")[1]
+            matches.append((finalPath, max_val))
     matches.sort(key=lambda x: x[1])
     for match in matches:
         print (match)
