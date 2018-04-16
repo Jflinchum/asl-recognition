@@ -9,6 +9,7 @@ from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 from util import getCoord, getFontSize
 from movement import get_movement_ratio
+from edge_detection import get_edges
 
 TRAINING_FRAMES = 100
 
@@ -55,6 +56,11 @@ def main():
         # Create a copy of the frame and get the mask of it
         maskedHand = getMask(croppedHand.copy(), currentFrame, TRAINING_FRAMES)
 
+        blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)
+        edge_map = get_edges(blurredCrop, maskedHand)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
+        edge_map = cv2.dilate(edge_map, cv2.getStructuringElement(cv2.MORPH_RECT,(3,3)), iterations = 2)
+
         # are we moving?
         move_ratio = get_movement_ratio(croppedHand)
 
@@ -98,12 +104,13 @@ def main():
         if moving == False and previousMoving == True and translateMode:
             if (len(contours) > 0):
                 x, y, w, h = cv2.boundingRect(contours)
-                crop = cv2.resize(maskedHand[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
-                matches = templateMatch(crop)
+                edge_crop = cv2.resize(edge_map[y:y+h, x:x+w], (TEMPLATE_SIZE, TEMPLATE_SIZE))
+                matches = templateMatch(edge_crop, .2, TEMPLATE_PATH)
                 matchTimer = 0
  
         # Show the frame
         cv2.imshow("video", image)
+        cv2.imshow("canny", edge_map)
 
         # Wait for a key press
         key = cv2.waitKey(10)
@@ -114,7 +121,7 @@ def main():
                 captureMode = False
             # If the key is lowercase alphabet letter
             elif key >= 97 and key <= 122:
-                captureToFile(key, contours, maskedHand)
+                captureToFile(key, contours, edge_map, TEMPLATE_PATH)
 
         else:
             # If space bar is entered, stop video
@@ -140,7 +147,7 @@ key - key to name the image after
 contour - the contour of the image
 maskedHand - the mask of the hand to save
 """
-def captureToFile(key, contours, maskedHand):
+def captureToFile(key, contours, maskedHand, directory):
         # Generate random numbers so there are no file collisions
         rand = randint(0, 100000)
         randFlip = randint(0, 100000)
@@ -151,8 +158,8 @@ def captureToFile(key, contours, maskedHand):
 
         # We need a mirror image for left and right handed folks
         flipMask = cv2.flip(crop, 1)
-        filename = os.path.join(TEMPLATE_PATH, chr(key) + str(rand) + ".jpg")
-        filenameFlip = os.path.join(TEMPLATE_PATH, chr(key) + str(randFlip) + ".jpg")
+        filename = os.path.join(directory, chr(key) + str(rand) + ".jpg")
+        filenameFlip = os.path.join(directory, chr(key) + str(randFlip) + ".jpg")
         
         # Write both to filename
         cv2.imwrite(filename, cv2.resize(crop, (TEMPLATE_SIZE, TEMPLATE_SIZE)))

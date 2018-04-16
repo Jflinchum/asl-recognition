@@ -1,4 +1,3 @@
-
 import cv2
 import numpy as np
 
@@ -13,7 +12,7 @@ def get_edges(image, mask):
     hand = cv2.bitwise_and(image, image, mask = mask)
 
     # Run Canny edge detection
-    edges = cv2.Canny(hand, 100, 200)
+    edges = cv2.Canny(hand, 30, 50)
 
     return edges
 
