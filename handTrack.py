@@ -5,30 +5,17 @@ previousPalms = []
 maxPalms = 5
 
 # Takes an image in order to greyscale, blur, and apply otsu's method
-def getMask(img, skinTones):
+def getMask(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-    img = cv2.GaussianBlur(img, (9,9), 0)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
  
-    roiHist = getHistogram(skinTones)
-    cv2.normalize(roiHist, dst=roiHist, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=-1)
-
-
-    binary = cv2.calcBackProject([hsv], channels=[0, 1], hist=roiHist, ranges=[0, 179, 0, 255], scale=1)
+    binary = cv2.inRange(hsv, (0, 48, 80), (20, 255, 255))
 
     # Blur the image a little bit
-    binary = cv2.medianBlur(binary, 9)
-    __, binary = cv2.threshold(binary, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations = 1)
-    cv2.imshow("binary", binary)
+    binary = cv2.blur(binary, (10,10))
+    __, binary = cv2.threshold(binary, 200, 255, cv2.THRESH_BINARY) 
     return binary
 
-def getHistogram(roi):
-    histSize = [30, 32]
-    ranges = [0, 179, 0, 255]
-    channels = [0, 1]
-    hist = cv2.calcHist([roi], channels, None, histSize, ranges) 
-    return hist
 
 # Finds the contours of the imgCopy, presumably the mask of img, and 
 # draws the contours onto the img
