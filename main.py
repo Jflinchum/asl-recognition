@@ -23,8 +23,6 @@ TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
 C_WHITE = (255, 255, 255)
 C_RED = (70, 0, 255)
 
-POINT_SIZE = 5
-
 # Main function
 def main():
     video = cv2.VideoCapture(0)
@@ -66,8 +64,6 @@ def main():
         
         if len(contours) > 0:
             cv2.drawContours(maskedHand, [contours], 0, 255, -1)
-
-        cv2.imshow("mask", maskedHand)
 
         # Generating canny
         blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)

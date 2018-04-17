@@ -7,15 +7,18 @@ maxPalms = 5
 # Takes an image in order to greyscale, blur, and apply otsu's method
 def getMask(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
- 
-    binary = cv2.inRange(hsv, (0, 48, 80), (20, 255, 255))
+
+    binary = getHSVMask(img)
 
     # Blur the image a little bit
-    binary = cv2.blur(binary, (10,10))
-    __, binary = cv2.threshold(binary, 200, 255, cv2.THRESH_BINARY) 
+    binary = cv2.GaussianBlur(binary, (5, 5), 0)
+    __, binary = cv2.threshold(binary, 200, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU) 
     return binary
 
+def getHSVMask(img): 
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV) 
+    binary = cv2.inRange(hsv, (0, 48, 80), (20, 255, 255))
+    return binary
 
 # Finds the contours of the imgCopy, presumably the mask of img, and 
 # draws the contours onto the img
