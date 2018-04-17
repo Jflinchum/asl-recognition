@@ -23,20 +23,23 @@ TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
 C_WHITE = (255, 255, 255)
 C_RED = (70, 0, 255)
 
-POINT_SIZE = 5
-
 # Main function
 def main():
     video = cv2.VideoCapture(0)
     currentFrame = 0
     captureMode = False
     translateMode = False
+    trained = False
+    skinTones = []
 
     # Get image parameters
     r, i = video.read()
     height, width, channel = i.shape
     topLeftX, topLeftY = getCoord(8, 14, (width, height))
     botRightX, botRightY = getCoord(39, 70, (width, height))
+    
+    ROI_TOP = getCoord(15, 30, (width, height))
+    ROI_BOT = getCoord(25, 50, (width, height))
 
     # Variables for matching the templates
     matches = {}
@@ -55,28 +58,27 @@ def main():
 
         # Crop video hand area
         croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
-
-        # Create a copy of the frame and get the mask of it
+# Create a copy of the frame and get the mask of it
         maskedHand = np.zeros(croppedHand.shape)
-            
-        maskedHand = getMask(croppedHand.copy())
-            
-        # Draw the contours onto the original video frame
-        contours = drawContours(croppedHand, maskedHand)
         
-        if len(contours) > 0:
+        if trained:
+            maskedHand = getMask(croppedHand.copy(), skinTones)
+            # Generating canny
+            blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)
+            edge_map = get_edges(blurredCrop, maskedHand)
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
+            edge_map = cv2.dilate(edge_map, cv2.getStructuringElement(cv2.MORPH_RECT,(3,3)), iterations = 2)
+ 
+            # Draw the contours onto the original video frame
+            contours = drawContours(croppedHand, maskedHand)
+        
+        # are we moving?
+        move_ratio = get_movement_ratio(croppedHand)
+
+        if trained and len(contours) > 0:
             cv2.drawContours(maskedHand, [contours], 0, 255, -1)
 
         cv2.imshow("mask", maskedHand)
-
-        # Generating canny
-        blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)
-        edge_map = get_edges(blurredCrop, maskedHand)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
-        edge_map = cv2.dilate(edge_map, cv2.getStructuringElement(cv2.MORPH_RECT,(3,3)), iterations = 2)
-
-        # are we moving?
-        move_ratio = get_movement_ratio(croppedHand)
 
         # Text for capture mode
         if captureMode:
@@ -89,6 +91,8 @@ def main():
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
+        if not trained:
+            cv2.rectangle(image, ROI_TOP, ROI_BOT, (0, 0, 255), 2)
 
         if matchTimer < maxMatchTimer:
             matchTimer = matchTimer + 1
@@ -155,6 +159,13 @@ def main():
             # Turn on capture mode on c key press
             elif key == ord("c"):
                 captureMode = True
+            elif key == ord("g") and not trained:
+                trained = True
+                hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+                skinTones = hsv[ROI_TOP[0]:ROI_BOT[0], ROI_TOP[1]:ROI_BOT[1]]
+            elif key == ord("g") and trained:
+                trained = False
+                skinTones = []
             elif key == ord("t") and not translateMode:
                 translateMode = True
             elif key == ord("t") and translateMode:
