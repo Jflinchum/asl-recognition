@@ -1,40 +1,20 @@
 import cv2
 import numpy as np
 
-fgbg = cv2.createBackgroundSubtractorMOG2()
-trained = False
-
 previousPalms = []
 maxPalms = 5
 
-def isTrained():
-    global trained
-    return trained
-
 # Takes an image in order to greyscale, blur, and apply otsu's method
-def getMask(img, currentFrame, trainingFrames = 100):
-    global trained
-    global fgbg
-    learning = 0
-    
-    if currentFrame < trainingFrames:
-        if trained:
-            fgbg = cv2.createBackgroundSubtractorMOG2()
-            trained = False
-        learning = -1
-    else:
-        trained = True
-    
-    fgmask = fgbg.apply(img, learningRate = learning)
-        
+def getMask(img):
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+ 
+    binary = cv2.inRange(hsv, (0, 48, 80), (20, 255, 255))
+
     # Blur the image a little bit
-    # Maybe do medianBlur or bilateralFilter
-    img = cv2.GaussianBlur(fgmask, (15, 15), 0)
-    # Applied Otsu's Method
-    __, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    cv2.dilate(img, np.ones((5,5), np.uint8), iterations=1)
-    cv2.erode(img, np.ones((5,5), np.uint8), iterations=1)
-    return img
+    binary = cv2.blur(binary, (10,10))
+    __, binary = cv2.threshold(binary, 200, 255, cv2.THRESH_BINARY) 
+    return binary
 
 
 # Finds the contours of the imgCopy, presumably the mask of img, and 
@@ -43,10 +23,10 @@ def drawContours(img, imgCopy):
     global previousPalms
     # Find the contours in the image
     image, contours, hierarchy = cv2.findContours(imgCopy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    
     maxContour = contours
-    maxArea = 0
-    if (contours):
+    maxArea = -100000
+    
+    if len(contours) > 0:
         # Find largest contour area
         for i in contours:
             area = cv2.contourArea(i)

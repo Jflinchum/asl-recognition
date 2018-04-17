@@ -11,8 +11,6 @@ from util import getCoord, getFontSize
 from movement import get_movement_ratio
 from edge_detection import get_edges
 
-TRAINING_FRAMES = 100
-
 TEMPLATE_PATH_MASK = "images/mask"
 TEMPLATE_PATH_EDGE = "images/edge"
 TEMPLATE_SIZE_TALL = (400, 600)
@@ -24,6 +22,8 @@ TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
 
 C_WHITE = (255, 255, 255)
 C_RED = (70, 0, 255)
+
+POINT_SIZE = 5
 
 # Main function
 def main():
@@ -57,8 +57,19 @@ def main():
         croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
 
         # Create a copy of the frame and get the mask of it
-        maskedHand = getMask(croppedHand.copy(), currentFrame, TRAINING_FRAMES)
+        maskedHand = np.zeros(croppedHand.shape)
+            
+        maskedHand = getMask(croppedHand.copy())
+            
+        # Draw the contours onto the original video frame
+        contours = drawContours(croppedHand, maskedHand)
+        
+        if len(contours) > 0:
+            cv2.drawContours(maskedHand, [contours], 0, 255, -1)
 
+        cv2.imshow("mask", maskedHand)
+
+        # Generating canny
         blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)
         edge_map = get_edges(blurredCrop, maskedHand)
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
@@ -66,13 +77,6 @@ def main():
 
         # are we moving?
         move_ratio = get_movement_ratio(croppedHand)
-
-        # Draw the contours onto the original video frame
-        contours = drawContours(croppedHand, maskedHand)
-
-        # Text for if the background subtraction is training
-        if currentFrame < TRAINING_FRAMES:
-            cv2.putText(image, "Training...", getCoord(7, 7, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_WHITE, 2)
 
         # Text for capture mode
         if captureMode:
@@ -85,6 +89,7 @@ def main():
 
         # Box for where the hand is cropped
         cv2.rectangle(image, (botRightX, botRightY), (topLeftX, topLeftY), (0, 255, 0), 0)
+
         if matchTimer < maxMatchTimer:
             matchTimer = matchTimer + 1
             # Print out matches on image
@@ -147,11 +152,6 @@ def main():
             # If space bar is entered, stop video
             if key == ord(" "):
                 video.release()
-
-            # If r is pressed, reset the frame counter and
-            # re-train the background detection
-            elif key == ord("r"):
-                currentFrame = 0
             # Turn on capture mode on c key press
             elif key == ord("c"):
                 captureMode = True

@@ -14,7 +14,7 @@ def get_movement_ratio(frame):
     change = None
     frame_c = frame.copy()
 
-    if prev_frame is not None and handTrack.isTrained():
+    if prev_frame is not None:
         diff = cv2.absdiff(prev_frame, frame_c)
         diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
         __, diff = cv2.threshold(diff, MOVEMENT_BINARY_LOWER, MOVEMENT_BINARY_UPPER, cv2.THRESH_BINARY)
