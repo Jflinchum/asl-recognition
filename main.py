@@ -162,7 +162,7 @@ def main():
             elif key == ord("g") and not trained:
                 trained = True
                 hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-                skinTones = hsv[ROI_TOP[0]:ROI_BOT[0], ROI_TOP[1]:ROI_BOT[1]]
+                skinTones = hsv[ROI_TOP[1]:ROI_BOT[1], ROI_TOP[0]:ROI_BOT[0]]
             elif key == ord("g") and trained:
                 trained = False
                 skinTones = []
