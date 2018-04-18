@@ -58,18 +58,15 @@ def main():
         maskedHand = np.zeros(croppedHand.shape)
             
         maskedHand = getMask(croppedHand.copy())
-            
-        # Draw the contours onto the original video frame
-        contours = drawContours(croppedHand, maskedHand)
-        
-        if len(contours) > 0:
-            cv2.drawContours(maskedHand, [contours], 0, 255, -1)
-
+             
         # Generating canny
         blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)
         edge_map = get_edges(blurredCrop, maskedHand)
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
         edge_map = cv2.dilate(edge_map, cv2.getStructuringElement(cv2.MORPH_RECT,(3,3)), iterations = 2)
+
+        # Draw the contours onto the original video frame
+        contours, boundingBox = drawContours(croppedHand, maskedHand)
 
         # are we moving?
         move_ratio = get_movement_ratio(croppedHand)
@@ -109,9 +106,9 @@ def main():
 
         # Attempt to match the hand if the hand was moving and it is now not moving
         if moving == False and previousMoving == True and translateMode:
-            if (len(contours) > 0):
+            if (boundingBox is not None):
                 matches = {}
-                x, y, w, h = cv2.boundingRect(contours)
+                x, y, w, h = boundingBox
                 TEMPLATE_SIZE = TEMPLATE_SIZE_SQUARE
                 if w > h * 1.25:
                     TEMPLATE_SIZE = TEMPLATE_SIZE_WIDE
@@ -141,8 +138,8 @@ def main():
                 captureMode = False
             # If the key is lowercase alphabet letter
             elif key >= 97 and key <= 122:
-                captureToFile(key, contours, maskedHand, TEMPLATE_PATH_MASK)
-                captureToFile(key, contours, edge_map, TEMPLATE_PATH_EDGE)
+                captureToFile(key, boundingBox, maskedHand, TEMPLATE_PATH_MASK)
+                captureToFile(key, boundingBox, edge_map, TEMPLATE_PATH_EDGE)
 
         else:
             # If space bar is entered, stop video
@@ -160,16 +157,16 @@ def main():
 captureToFile - Takes the input key, crops the hand, flips the image for opposite
 hand capturing, and saves it to a file in the template path
 key - key to name the image after
-contour - the contour of the image
+boundingBox - the bounding box of the image
 maskedHand - the mask of the hand to save
 """
-def captureToFile(key, contours, maskedHand, directory):
+def captureToFile(key, boundingBox, maskedHand, directory):
         # Generate random numbers so there are no file collisions
         rand = randint(0, 100000)
         randFlip = randint(0, 100000)
         
-        # Crop the image based on contours
-        x, y, w, h = cv2.boundingRect(contours)
+        # Crop the image based on boundingBox
+        x, y, w, h = boundingBox 
         crop = maskedHand[y:y+h, x:x+w]
 
         # We need a mirror image for left and right handed folks
