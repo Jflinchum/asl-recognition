@@ -53,6 +53,7 @@ def main():
 
         # Crop video hand area
         croppedHand = image[topLeftY:botRightY, topLeftX:botRightX]
+        move_check_frame = croppedHand.copy()
 
         # Create a copy of the frame and get the mask of it
         maskedHand = np.zeros(croppedHand.shape)
@@ -69,7 +70,7 @@ def main():
         contours, boundingBox = drawContours(croppedHand, maskedHand)
 
         # are we moving?
-        move_ratio = get_movement_ratio(croppedHand)
+        move_ratio = get_movement_ratio(move_check_frame)
 
         # Text for capture mode
         if captureMode:
