@@ -13,9 +13,7 @@ from edge_detection import get_edges
 
 TEMPLATE_PATH_MASK = "images/mask"
 TEMPLATE_PATH_EDGE = "images/edge"
-TEMPLATE_SIZE_TALL = (400, 600)
-TEMPLATE_SIZE_SQUARE = (500, 500)
-TEMPLATE_SIZE_WIDE = (600, 400)
+TEMPLATE_SIZE = (500, 500)
 
 TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
 TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
@@ -110,11 +108,6 @@ def main():
             if (boundingBox is not None):
                 matches = {}
                 x, y, w, h = boundingBox
-                TEMPLATE_SIZE = TEMPLATE_SIZE_SQUARE
-                if w > h * 1.25:
-                    TEMPLATE_SIZE = TEMPLATE_SIZE_WIDE
-                elif h > w * 1.25:
-                    TEMPLATE_SIZE = TEMPLATE_SIZE_TALL
                 edge_crop = cv2.resize(edge_map[y:y+h, x:x+w], TEMPLATE_SIZE)
                 mask_crop = cv2.resize(maskedHand[y:y+h, x:x+w], TEMPLATE_SIZE)
                 matches_mask = templateMatch(mask_crop, .6, TEMPLATE_PATH_MASK)
@@ -176,12 +169,6 @@ def captureToFile(key, boundingBox, maskedHand, directory):
         filenameFlip = os.path.join(directory, chr(key) + str(randFlip) + ".jpg")
         
         # Write both to filename
-        TEMPLATE_SIZE = TEMPLATE_SIZE_SQUARE
-        if w > h * 1.25:
-            TEMPLATE_SIZE = TEMPLATE_SIZE_WIDE
-        elif h > w * 1.25:
-            TEMPLATE_SIZE = TEMPLATE_SIZE_TALL
-        # DO STUFF HERE
         cv2.imwrite(filename, cv2.resize(crop, TEMPLATE_SIZE))
         cv2.imwrite(filenameFlip, cv2.resize(flipMask, TEMPLATE_SIZE))
 
