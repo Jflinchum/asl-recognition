@@ -13,7 +13,7 @@ from edge_detection import get_edges
 
 TEMPLATE_PATH_MASK = "images/mask"
 TEMPLATE_PATH_EDGE = "images/edge"
-TEMPLATE_SIZE = (500, 500)
+TEMPLATE_SIZE = (200, 200)
 
 TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
 TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
