@@ -40,6 +40,7 @@ def main():
     matches = {}
     matchTimer = 50
     maxMatchTimer = 50
+    matchText = ""
 
     # Move Ratio
     previousMoving = False
@@ -79,6 +80,7 @@ def main():
         # Text for translate mode
         if translateMode:
             cv2.putText(image, "Translate Mode", getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(2, image.shape), C_RED, 2)
+            cv2.putText(image, matchText, getCoord(7, 90, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
 
 
         # Box for where the hand is cropped
@@ -121,6 +123,9 @@ def main():
                         else:
                             matches[m[0]] = (m[1] + e[1])
                 matchTimer = 0
+                if matches:
+                    bestMatch = sorted(matches.items(), key=lambda x: x[1])[-1][0]
+                    matchText += bestMatch
  
         # Show the frame
         cv2.imshow("video", image)
@@ -148,6 +153,7 @@ def main():
                 translateMode = True
             elif key == ord("t") and translateMode:
                 translateMode = False
+                matchText = ""
 
 """
 captureToFile - Takes the input key, crops the hand, flips the image for opposite
