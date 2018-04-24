@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 import sys
+import os
 import os.path
 from random import randint
 from handTrack import getMask, drawContours
@@ -175,6 +176,10 @@ def captureToFile(key, boundingBox, maskedHand, directory):
         flipMask = cv2.flip(crop, 1)
         filename = os.path.join(directory, chr(key) + str(rand) + ".jpg")
         filenameFlip = os.path.join(directory, chr(key) + str(randFlip) + ".jpg")
+
+        # Make directory
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         
         # Write both to filename
         cv2.imwrite(filename, cv2.resize(crop, TEMPLATE_SIZE))
