@@ -18,6 +18,8 @@ TEMPLATE_SIZE = (200, 200)
 TEXT_FONT = cv2.FONT_HERSHEY_TRIPLEX
 TEXT_PLAIN = cv2.FONT_HERSHEY_PLAIN
 
+MOVEMENT_RATIO_BOUNDARY = 0.01
+
 C_WHITE = (255, 255, 255)
 C_RED = (70, 0, 255)
 
@@ -94,7 +96,7 @@ def main():
 
         if move_ratio is not None: #and move_ratio < 1.0:
             cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
-            if move_ratio < 0.01:
+            if move_ratio < MOVEMENT_RATIO_BOUNDARY:
                 previousMoving = moving
                 moving = False
                 cv2.putText(image, "STILL", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
