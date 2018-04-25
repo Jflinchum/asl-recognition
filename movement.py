@@ -5,9 +5,14 @@ import handTrack
 
 MOVEMENT_BINARY_LOWER = 40
 MOVEMENT_BINARY_UPPER = 255
-# MOVEMENT_THRESHOLD = 1.0 # good between 0.5 - 1.0
+MOVEMENT_THRESHOLD = 0.01
+
+MIN_MOVE_REQUIRED = 5
+MIN_STILL_REQUIRED = 5
+MAX_MOVE_RECALL = MIN_MOVE_REQUIRED + MIN_STILL_REQUIRED
 
 prev_frame = None
+move_ratios = []
 
 def get_movement_ratio(frame):
     global prev_frame
@@ -22,3 +27,28 @@ def get_movement_ratio(frame):
 
     prev_frame = frame_c
     return change
+
+def should_detect(move_ratio):
+    global move_ratios
+
+    if move_ratio is None:
+        return False
+
+    move_ratios.append(move_ratio)
+
+    if len(move_ratios) > MAX_MOVE_RECALL:
+        move_ratios = move_ratios[-MAX_MOVE_RECALL:]
+
+    if len(move_ratios) < MAX_MOVE_RECALL:
+        return False
+
+    should = True
+
+    for move in move_ratios[:MIN_MOVE_REQUIRED]:
+        if move < MOVEMENT_THRESHOLD:
+            should = False
+    for move in move_ratios[-MIN_STILL_REQUIRED:]:
+        if move > MOVEMENT_THRESHOLD:
+            should = False
+
+    return should

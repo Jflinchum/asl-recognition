@@ -9,7 +9,7 @@ from random import randint
 from handTrack import getMask, drawContours
 from aslRecog import templateMatch
 from util import getCoord, getFontSize
-from movement import get_movement_ratio
+from movement import get_movement_ratio, should_detect
 from edge_detection import get_edges
 
 TEMPLATE_PATH_MASK = "images/mask"
@@ -42,10 +42,6 @@ def main():
     matchTimer = 50
     maxMatchTimer = 50
     matchText = ""
-
-    # Move Ratio
-    previousMoving = False
-    moving = False
 
     while (video.isOpened()):
         # Constantly read the new frame of the image
@@ -100,16 +96,12 @@ def main():
         if move_ratio is not None: #and move_ratio < 1.0:
             cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
             if move_ratio < MOVEMENT_RATIO_BOUNDARY:
-                previousMoving = moving
-                moving = False
                 cv2.putText(image, "STILL", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
             else:
-                previousMoving = moving
-                moving = True
                 cv2.putText(image, "MOVE", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
 
         # Attempt to match the hand if the hand was moving and it is now not moving
-        if moving == False and previousMoving == True and translateMode:
+        if should_detect(move_ratio) and translateMode:
             if (boundingBox is not None):
                 matches = {}
                 x, y, w, h = boundingBox
@@ -127,7 +119,7 @@ def main():
                 if matches:
                     bestMatch = sorted(matches.items(), key=lambda x: x[1])[-1][0]
                     matchText += bestMatch
- 
+
         # Show the frame
         cv2.imshow("video", image)
 
