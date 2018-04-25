@@ -93,14 +93,14 @@ def main():
                 cv2.putText(image, imageName + "--" + str(probability), getCoord(50, 7 + i*3, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
                 i += 1
 
-        if move_ratio is not None: #and move_ratio < 1.0:
-            cv2.putText(image, "{0:.2f}".format(100.*move_ratio), getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
+        if move_ratio is not None:
+            cv2.putText(image, "{0:.2f}%".format(100.*move_ratio), getCoord(7, 80, (width, height)), TEXT_FONT, getFontSize(1, image.shape), C_WHITE, 1)
             if move_ratio < MOVEMENT_RATIO_BOUNDARY:
                 cv2.putText(image, "STILL", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
             else:
                 cv2.putText(image, "MOVE", getCoord(7, 75, (width, height)), TEXT_PLAIN, getFontSize(2, image.shape), C_WHITE, 1)
 
-        # Attempt to match the hand if the hand was moving and it is now not moving
+        # Attempt to match the hand we go from moving to still
         if should_detect(move_ratio) and translateMode:
             if (boundingBox is not None):
                 matches = {}
@@ -116,9 +116,10 @@ def main():
                         else:
                             matches[m[0]] = (m[1] + e[1])
                 matchTimer = 0
+
+                # If we get any matches, save the letter in the string displayed
                 if matches:
-                    bestMatch = sorted(matches.items(), key=lambda x: x[1])[-1][0]
-                    matchText += bestMatch
+                    matchText += sorted(matches.items(), key=lambda x: x[1])[-1][0]
 
         # Show the frame
         cv2.imshow("video", image)
