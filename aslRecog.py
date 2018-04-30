@@ -2,9 +2,15 @@ import cv2
 import numpy as np
 import os
 
-# Uses template matching over a sample directory to show how a binary image
-# compares to every image in the directory
 def templateMatch(binary, matchFilter, sampleDir):
+    """
+    Uses template matching over a sample directory to show how a binary image
+    compares to every image in the directory
+    binary - The binary image of the hand
+    matchFilter - The lower limit to what is considered a match
+    sampleDir - The directory that holds the sample images
+    """
+
     sampleImages = [image for image in os.listdir(sampleDir) if os.path.isfile(os.path.join(sampleDir, image)) and image[-4:] == ".jpg"]
     matches = []
     # Iterate through each image in directory

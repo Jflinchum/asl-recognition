@@ -17,7 +17,7 @@ move_ratios = []
 def get_movement_ratio(frame):
     """
     Get the movement ratio between the current frame and the one prior.
-    @param frame The current frame of video
+    frame - The current frame of video
     """
 
     global prev_frame
@@ -47,7 +47,7 @@ def get_movement_ratio(frame):
 def should_detect(move_ratio):
     """
     Make a robust detection for whether we should detect the hand sign based on movement in the image.
-    @param move_ratio from the get_movement_ratio function
+    move_ratio - from the get_movement_ratio function
     """
 
     global move_ratios

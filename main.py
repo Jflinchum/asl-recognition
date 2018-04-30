@@ -24,8 +24,11 @@ MOVEMENT_RATIO_BOUNDARY = 0.01
 C_WHITE = (255, 255, 255)
 C_RED = (70, 0, 255)
 
-# Main function
 def main():
+    """
+    Main function for the application.
+    """
+
     video = cv2.VideoCapture(0)
     currentFrame = 0
     captureMode = False
@@ -55,9 +58,9 @@ def main():
 
         # Create a copy of the frame and get the mask of it
         maskedHand = np.zeros(croppedHand.shape)
-            
+
         maskedHand = getMask(croppedHand.copy())
-             
+
         # Generating canny
         blurredCrop = cv2.bilateralFilter(croppedHand, 9, 75, 75)
         edge_map = get_edges(blurredCrop, maskedHand)
@@ -127,7 +130,7 @@ def main():
         # Wait for a key press
         key = cv2.waitKey(10)
 
-        if captureMode: 
+        if captureMode:
             # Cancel capture mode on a space keypress
             if key == ord(" "):
                 captureMode = False
@@ -149,38 +152,40 @@ def main():
                 translateMode = False
                 matchText = ""
 
-"""
-captureToFile - Takes the input key, crops the hand, flips the image for opposite
-hand capturing, and saves it to a file in the template path
-key - key to name the image after
-boundingBox - the bounding box of the image
-maskedHand - the mask of the hand to save
-"""
 def captureToFile(key, boundingBox, maskedHand, directory):
-        # Generate random numbers so there are no file collisions
-        rand = randint(0, 100000)
-        randFlip = randint(0, 100000)
-        
-        # Crop the image based on boundingBox
-        x, y, w, h = boundingBox 
-        crop = maskedHand[y:y+h, x:x+w]
+    """
+    captureToFile - Takes the input key, crops the hand, flips the image for opposite
+    hand capturing, and saves it to a file in the template path
+    key - key to name the image after
+    boundingBox - the bounding box of the image
+    maskedHand - the mask of the hand to save
+    """
 
-        # We need a mirror image for left and right handed folks
-        flipMask = cv2.flip(crop, 1)
-        filename = os.path.join(directory, chr(key) + str(rand) + ".jpg")
-        filenameFlip = os.path.join(directory, chr(key) + str(randFlip) + ".jpg")
+    # Generate random numbers so there are no file collisions
+    rand = randint(0, 100000)
+    randFlip = randint(0, 100000)
 
-        # Make directory
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        
-        # Write both to filename
-        cv2.imwrite(filename, cv2.resize(crop, TEMPLATE_SIZE))
-        cv2.imwrite(filenameFlip, cv2.resize(flipMask, TEMPLATE_SIZE))
+    # Crop the image based on boundingBox
+    x, y, w, h = boundingBox
+    crop = maskedHand[y:y+h, x:x+w]
 
-        print ("Saved as " + filename) 
-        print ("Saved as " + filenameFlip) 
+    # We need a mirror image for left and right handed folks
+    flipMask = cv2.flip(crop, 1)
+    filename = os.path.join(directory, chr(key) + str(rand) + ".jpg")
+    filenameFlip = os.path.join(directory, chr(key) + str(randFlip) + ".jpg")
 
+    # Make directory
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Write both to filename
+    cv2.imwrite(filename, cv2.resize(crop, TEMPLATE_SIZE))
+    cv2.imwrite(filenameFlip, cv2.resize(flipMask, TEMPLATE_SIZE))
+
+    print ("Saved as " + filename)
+    print ("Saved as " + filenameFlip)
+
+# Only run the main function if the application was run with this file.
 if __name__ == "__main__":
     main()
     cv2.destroyAllWindows()

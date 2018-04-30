@@ -1,30 +1,42 @@
 import cv2
 import numpy as np
 
-# Takes an image in order to greyscale, blur, and apply otsu's method
 def getMask(img):
+    """
+    Takes an image in order to greyscale, blur, and apply otsu's method.
+    img - The image to get the mask of
+    """
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
 
     binary = getHSVMask(img)
 
     # Blur the image a little bit
     binary = cv2.GaussianBlur(binary, (5, 5), 0)
-    __, binary = cv2.threshold(binary, 200, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU) 
+    __, binary = cv2.threshold(binary, 200, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     return binary
 
-def getHSVMask(img): 
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV) 
+def getHSVMask(img):
+    """
+    Get the binary mask of a specified range of HSV values which correspond to skin-tone.
+    img - the image to get the mask of
+    """
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     binary = cv2.inRange(hsv, (0, 48, 80), (20, 255, 255))
     return binary
 
-# Finds the contours of the imgCopy, presumably the mask of img, and 
-# draws the contours onto the img
 def drawContours(img, imgCopy):
+    """
+    Finds the contours of the imgCopy, presumably the mask of img, and
+    draws the contours onto the img
+    img - image to draw the contours onto
+    imgCopy - clean image to find the contours with
+    """
+
     # Find the contours in the image
     image, contours, hierarchy = cv2.findContours(imgCopy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     maxContour = contours
     maxArea = -100000
-    
+
     if len(contours) > 0:
         # Find largest contour area
         for i in contours:
@@ -53,7 +65,7 @@ def drawContours(img, imgCopy):
                 far = tuple(maxContour[f][0])
 
                 farPoints.append(far)
-                
+
                 # Ignore noise
                 if (h * .01) > d/256.0:
                     continue
@@ -78,4 +90,9 @@ def drawContours(img, imgCopy):
         return [], None
 
 def dist(x, y):
+    """
+    Return the distance between two points.
+    x - First point
+    y - Second point
+    """
     return np.sqrt((x[0]-y[0])**2 + (x[1]-y[1])**2)
