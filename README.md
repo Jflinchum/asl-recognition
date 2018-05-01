@@ -2,7 +2,7 @@
 CSCI-431 Spring 2018 project for recognizing the ASL alphabet.
 
 ## Installation
-Requires OpenCV and NumPy to run.
+Requires [OpenCV](https://opencv.org/) and [NumPy](http://www.numpy.org/) to run.
 
 ## Usage
 Running `main.py` will start the main program, which uses the device's camera.
